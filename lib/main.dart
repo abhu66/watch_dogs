@@ -39,7 +39,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Completer<GoogleMapController> _mapController = Completer();
-  Location location;
+  Location location = Location();
   LatLng _currentPosition;
   UserLocation _userLocation;
   Map<String, double> userLocation;
@@ -51,11 +51,10 @@ class _MyHomePageState extends State<MyHomePage> {
   LocationData currentLocation;
 
 
-
   @override void initState() {
     // TODO: implement initState
     super.initState();
-    location = new Location();
+
     location.onLocationChanged().listen((value) {
       setState(() {
         setSourceAndDestinationIcons();
@@ -109,6 +108,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget buildGooglMap(BuildContext context){
     _userLocation = Provider.of(context);
     return GoogleMap(
+      onMapCreated: (GoogleMapController controller){
+        _mapController.complete(controller);
+        //showPinOnMap();
+
+      },
       myLocationEnabled: true,
       compassEnabled: true,
       mapType: MapType.normal,
@@ -119,30 +123,27 @@ class _MyHomePageState extends State<MyHomePage> {
           tilt: 15,
           bearing: 15,
         ),
-        onMapCreated: (GoogleMapController controller){
-          _mapController.complete(controller);
-          showPinOnMap();
-        },
+
         markers: _markers.values.toSet(),
       );
   }
 
-  void showPinOnMap(){
-    // get a LatLng for the source location
-    // from the LocationData currentLocation object
-    var pinPosition = LatLng(currentLocation.latitude,
-        currentLocation.longitude);
-
-    _markers.clear();
-    final marker = Marker(
-      markerId: MarkerId(
-          "sourcePin"),
-      icon: sourceIcon,
-      position: pinPosition,
+//  void showPinOnMap(){
+//    // get a LatLng for the source location
+//    // from the LocationData currentLocation object
+//    var pinPosition = LatLng(currentLocation.latitude,
+//        currentLocation.longitude);
+//
+//    _markers.clear();
+//    final marker = Marker(
+//      markerId: MarkerId(
+//          "sourcePin"),
+//      icon: sourceIcon,
+//      position: pinPosition,
 //      infoWindow: InfoWindow(title: "Abu Khoerul Iskandar Ali "),
-    );
-    _markers["Current Location"] = marker;
-  }
+//    );
+//    _markers["Current Location"] = marker;
+//  }
 
   void setSourceAndDestinationIcons() async {
     sourceIcon = await BitmapDescriptor.fromAssetImage(
